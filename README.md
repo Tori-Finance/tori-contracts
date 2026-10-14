@@ -70,14 +70,12 @@ is identical.
 
 ## Audits
 
-| Firm | Scope | Report |
+| Firm | Engagement | Report |
 |---|---|---|
 | Sherlock | Collaborative audit, final commit `eb507400` (Feb 2026) | [docs.tori.finance/security/audits](https://docs.tori.finance/security/audits) |
 | Nethermind | NM-0854, final commit `4ac4e51` (Mar 2026) | [docs.tori.finance/security/audits](https://docs.tori.finance/security/audits) |
 
-The Nethermind audit covered TrUSD, StakedTrUSD, TrUsdSilo, ToriMinting,
-StakingRewardsDistributor and ToriTimelock. PendleYTLock, StakedTrUSDL2 and CurveRateOracle were
-not in its scope, and StakedTrUSD's daily loss cap was added after it.
+Each report states the scope and the commit it reviewed.
 
 ## Security
 
