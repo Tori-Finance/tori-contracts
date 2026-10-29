@@ -33,7 +33,7 @@ orders, and strUSD is an ERC-4626 vault over trUSD that earns the protocol's yie
 | ToriMinting | [`0xe16b821B9F6B0a6f06a2C4a61D5d1f71cFa53F1E`](https://etherscan.io/address/0xe16b821B9F6B0a6f06a2C4a61D5d1f71cFa53F1E) |
 | TrUsdSilo | [`0xF7c0d8853E69DCD37ee7599c6280d2632F3360B4`](https://etherscan.io/address/0xF7c0d8853E69DCD37ee7599c6280d2632F3360B4) |
 | StakingRewardsDistributor | [`0xa0C49fFa4B7941830235cde974d9B2a8420CD375`](https://etherscan.io/address/0xa0C49fFa4B7941830235cde974d9B2a8420CD375) |
-| ToriTimelock | [`0x7af35ab3E5373dA511c5F1331f44335a36dA1A55`](https://etherscan.io/address/0x7af35ab3E5373dA511c5F1331f44335a36dA1A55) |
+| ToriTimelock | [`0xA952453E39F77108Ee37C1b92de593F1C59A6ef4`](https://etherscan.io/address/0xA952453E39F77108Ee37C1b92de593F1C59A6ef4) (replaced `0x7af35ab3…` on 15 Sep 2026; same source) |
 | PendleYTLock, strUSD (proxy) | [`0x6569C554cBf71Dfcc32aEc48B0eDd2582f5C4a96`](https://etherscan.io/address/0x6569C554cBf71Dfcc32aEc48B0eDd2582f5C4a96) |
 | PendleYTLock, trUSD (proxy) | [`0x10b2487173d9F7087c8bdce9E70fd135212A8d7d`](https://etherscan.io/address/0x10b2487173d9F7087c8bdce9E70fd135212A8d7d) (see the note below) |
 
@@ -50,7 +50,13 @@ orders, and strUSD is an ERC-4626 vault over trUSD that earns the protocol's yie
 |---|---|
 | StakedTrUSDL2 (strUSD) | [`0x25419E949b485d481BED4ea0c5A0496f6C7f7c63`](https://pharosscan.xyz/address/0x25419E949b485d481BED4ea0c5A0496f6C7f7c63) |
 
-trUSD on Monad and Pharos is Chainlink's standard CCIP burn/mint token, so its source is not here.
+### Arbitrum
+
+| Contract | Address |
+|---|---|
+| StakedTrUSDL2 (strUSD) | [`0x2F0EF93CE562bd192F13dB1acb32D3A8aa324974`](https://arbiscan.io/address/0x2F0EF93CE562bd192F13dB1acb32D3A8aa324974) |
+
+trUSD on Monad, Pharos and Arbitrum is Chainlink's standard CCIP burn/mint token, so its source is not here.
 
 **Note on the trUSD PendleYTLock:** its implementation is an earlier version of `PendleYTLock`
 than the one in this repository. The strUSD lock runs the version here.
