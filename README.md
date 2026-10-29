@@ -24,6 +24,11 @@ orders, and strUSD is an ERC-4626 vault over trUSD that earns the protocol's yie
 
 ## Deployments
 
+These are the deployments of the source in this repository. The full official address list,
+including trUSD on every chain and the Chainlink CCIP token pools and lockboxes, is at
+[docs.tori.finance/resources/contracts](https://docs.tori.finance/resources/contracts). If the two
+ever differ, the docs are the reference.
+
 ### Ethereum
 
 | Contract | Address |
