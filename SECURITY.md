@@ -37,6 +37,8 @@ Full audit reports are available at <https://docs.tori.finance/security/audits>.
 
 In scope:
 - The Solidity contracts in this repository, at the addresses listed in README.md.
+- The website, app and API (tori.finance, app.tori.finance): Critical issues only, with a reward of up
+  to $50,000. See the docs for what counts as Critical there.
 
 Out of scope:
 - Testnet deployments.
