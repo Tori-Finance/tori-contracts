@@ -7,22 +7,22 @@ privately to **security@tori.finance**. Do not open a public GitHub issue.
 
 ## Response Timeline
 
-| Stage                | SLA       |
-|----------------------|-----------|
-| Acknowledgment       | 24 hours  |
-| Initial assessment   | 72 hours  |
-| Remediation plan     | 1 week    |
-| Public disclosure    | After fix |
+| Stage                | Target                 |
+|----------------------|------------------------|
+| Acknowledgment       | Within 3 business days |
+| Initial assessment   | Within 10 business days |
+| Public disclosure    | After the fix is live  |
 
-We follow coordinated disclosure: once a fix is deployed, we will publish a
-post-mortem and credit the reporter (with their permission).
+Send reports in plain text. We do not open attachments, so put the description, the affected contract
+and function, and the proof of concept (a Foundry test against a mainnet fork is ideal) in the body of
+the email.
 
 ## Bug Bounty
 
-A Sherlock-hosted bug bounty program is live at mainnet launch with a
-maximum reward of **$1,000,000** and severity-scaled payouts. The current
-URL will be published on <https://docs.tori.finance/security/audits> when
-the program opens.
+The bug bounty is live, with rewards of up to **$1,000,000** by severity. Scope, exclusions and rewards
+are on <https://docs.tori.finance/security/audits#bug-bounty>. Only the first valid report of an issue is
+eligible, issues that need a privileged role or a compromised key are out of scope, and rewards are paid
+after an identity and sanctions check.
 
 ## Audits
 
