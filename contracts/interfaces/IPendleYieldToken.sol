@@ -68,6 +68,9 @@ interface IPendleStandardizedYield {
     /// @notice Whether `token` is an accepted `tokenOut` for `redeem`
     function isValidTokenOut(address token) external view returns (bool);
 
+    /// @notice Every token `redeem` can pay out
+    function getTokensOut() external view returns (address[] memory);
+
     /// @notice Quotes `redeem` without executing it
     function previewRedeem(address tokenOut, uint256 amountSharesToRedeem) external view returns (uint256);
 }

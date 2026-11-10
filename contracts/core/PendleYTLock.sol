@@ -58,6 +58,8 @@ contract PendleYTLock is
         mapping(address => uint256) userYieldIndex;
         mapping(address => uint256) userYieldAccrued;
         uint256 orphanedYieldAmount; // SY that arrived with no shares outstanding; not attributable
+        // --- v4: yield-off mode. Appended only; never reorder the fields above. ---
+        bool yieldDisabled; // Set once by `initializeWithoutYield`; zero (yield on) for every earlier proxy
     }
 
     // ERC7201 namespaced storage location
@@ -96,10 +98,16 @@ contract PendleYTLock is
     error InvalidYieldToken();
     error NoYieldToClaim();
     error UnauthorizedCaller();
+    error YieldDisabled();
 
     /* ------------- MODIFIERS ------------- */
     modifier notZero(uint256 amount) {
         if (amount == 0) revert InvalidAmount();
+        _;
+    }
+
+    modifier whenYieldEnabled() {
+        if (_getPendleYTLockStorage().yieldDisabled) revert YieldDisabled();
         _;
     }
 
@@ -116,13 +124,36 @@ contract PendleYTLock is
 
     /* ------------- INITIALIZER ------------- */
     /**
-     * @notice Initialize the vault
+     * @notice Initialize the vault with yield distribution on
      * @param _asset Address of the Pendle YT token
      * @param _owner Initial owner address
      * @param _name ERC20 name of the lock share token
      * @param _symbol ERC20 symbol of the lock share token
      */
     function initialize(address _asset, address _owner, string memory _name, string memory _symbol) public initializer {
+        _initLock(_asset, _owner, _name, _symbol);
+        // Fresh deployments are self-configuring, so deposits never depend on a follow-up call.
+        _pinYieldTokens();
+    }
+
+    /**
+     * @notice Initialize the vault with yield distribution off, for a YT whose SY pays no interest
+     * @dev Nothing is pinned and `_update` never calls Pendle, so deposits and transfers neither pay
+     *      for an empty harvest nor depend on the SY being live. Permanent short of an upgrade.
+     * @param _asset Address of the Pendle YT token
+     * @param _owner Initial owner address
+     * @param _name ERC20 name of the lock share token
+     * @param _symbol ERC20 symbol of the lock share token
+     */
+    function initializeWithoutYield(address _asset, address _owner, string memory _name, string memory _symbol)
+        public
+        initializer
+    {
+        _initLock(_asset, _owner, _name, _symbol);
+        _getPendleYTLockStorage().yieldDisabled = true;
+    }
+
+    function _initLock(address _asset, address _owner, string memory _name, string memory _symbol) private {
         if (_owner == address(0) || _asset == address(0)) {
             revert InvalidZeroAddress();
         }
@@ -137,9 +168,6 @@ contract PendleYTLock is
 
         PendleYTLockStorage storage $ = _getPendleYTLockStorage();
         $.withdrawalsPaused = true; // Paused by default
-
-        // Fresh deployments are self-configuring, so deposits never depend on a follow-up call.
-        _pinYieldTokens();
     }
 
     /**
@@ -153,6 +181,7 @@ contract PendleYTLock is
         if (!hasRole(DEFAULT_ADMIN_ROLE, msg.sender) && !hasRole(TIMELOCK_ADMIN_ROLE, msg.sender)) {
             revert UnauthorizedCaller();
         }
+        if (_getPendleYTLockStorage().yieldDisabled) revert YieldDisabled();
         _pinYieldTokens();
     }
 
@@ -166,6 +195,15 @@ contract PendleYTLock is
         if (sy == address(0)) revert InvalidZeroAddress();
 
         address rewardToken = IPendleStandardizedYield(sy).yieldToken();
+        // Some SYs report an internal scaled adapter as `yieldToken()` that `redeem` cannot pay out
+        // (Monad SY-strUSD: "strUSD-scaled18"). Those redeem to exactly one real token, which is then
+        // the payout leg; the checks below hold it to the same standard. An SY whose `yieldToken()` is
+        // redeemable (every Ethereum market) never reaches the fallback.
+        if (rewardToken != address(0) && !IPendleStandardizedYield(sy).isValidTokenOut(rewardToken)) {
+            address[] memory out = IPendleStandardizedYield(sy).getTokensOut();
+            if (out.length != 1) revert InvalidYieldToken();
+            rewardToken = out[0];
+        }
         // The payout token must be distinct from the locked YT, or a harvest would hand out principal.
         if (rewardToken == address(0) || rewardToken == asset()) revert InvalidYieldToken();
         if (!IPendleStandardizedYield(sy).isValidTokenOut(rewardToken)) revert InvalidYieldToken();
@@ -192,7 +230,7 @@ contract PendleYTLock is
      * @return distributed Amount of SY newly attributed
      * @dev Permissionless, and callable while paused: it only pulls value in.
      */
-    function claimPendleYield() external nonReentrant returns (uint256 distributed) {
+    function claimPendleYield() external nonReentrant whenYieldEnabled returns (uint256 distributed) {
         return _harvest(true);
     }
 
@@ -219,7 +257,7 @@ contract PendleYTLock is
      * @dev Moves only `orphanedYield()`. Booked claims sit in `reservedYield` and are never part of it.
      * @dev Harvests first, and pays out in the payout token redeemed straight to `to`.
      */
-    function rescueOrphanYield(address to) external nonReentrant onlyRole(DEFAULT_ADMIN_ROLE) {
+    function rescueOrphanYield(address to) external nonReentrant whenYieldEnabled onlyRole(DEFAULT_ADMIN_ROLE) {
         if (to == address(0) || to == address(this)) revert InvalidZeroAddress();
 
         PendleYTLockStorage storage $ = _getPendleYTLockStorage();
@@ -245,7 +283,7 @@ contract PendleYTLock is
      * @dev Does not harvest, so it keeps working through a Pendle-side outage. Call
      *      `claimPendleYield()` first (front-ends batch the two) to include the freshest accrual.
      */
-    function claimYield() external nonReentrant whenNotPaused returns (uint256 amount) {
+    function claimYield() external nonReentrant whenNotPaused whenYieldEnabled returns (uint256 amount) {
         return _claimYield(msg.sender, msg.sender);
     }
 
@@ -253,7 +291,13 @@ contract PendleYTLock is
      * @notice Claim your accrued yield to a different address
      * @param receiver Address to receive the yield token
      */
-    function claimYieldTo(address receiver) external nonReentrant whenNotPaused returns (uint256 amount) {
+    function claimYieldTo(address receiver)
+        external
+        nonReentrant
+        whenNotPaused
+        whenYieldEnabled
+        returns (uint256 amount)
+    {
         return _claimYield(msg.sender, receiver);
     }
 
@@ -476,6 +520,11 @@ contract PendleYTLock is
         return _getPendleYTLockStorage().totalYieldClaimedAmount;
     }
 
+    /// @notice True for a lock initialized with `initializeWithoutYield`: no harvest, no claims
+    function yieldDisabled() external view returns (bool) {
+        return _getPendleYTLockStorage().yieldDisabled;
+    }
+
     /// @notice SY held here that no share can claim, awaiting `rescueOrphanYield`
     function orphanedYield() external view returns (uint256) {
         return _getPendleYTLockStorage().orphanedYieldAmount;
@@ -509,7 +558,7 @@ contract PendleYTLock is
      * @notice Get contract version
      */
     function version() external pure returns (string memory) {
-        return "3.0.0";
+        return "4.0.0";
     }
 
     function decimals() public pure override(ERC4626Upgradeable, ERC20Upgradeable) returns (uint8) {
@@ -653,10 +702,13 @@ contract PendleYTLock is
             return;
         }
 
-        _harvest(to != address(0));
+        // Yield off: no index to advance and no Pendle call to make.
+        if (!_getPendleYTLockStorage().yieldDisabled) {
+            _harvest(to != address(0));
 
-        if (from != address(0)) _settleYield(from);
-        if (to != address(0)) _settleYield(to);
+            if (from != address(0)) _settleYield(from);
+            if (to != address(0)) _settleYield(to);
+        }
         super._update(from, to, value);
     }
 

@@ -15,7 +15,7 @@ orders, and strUSD is an ERC-4626 vault over trUSD that earns the protocol's yie
 | StakedTrUSD | `contracts/core/StakedTrUSD.sol` | strUSD: ERC-4626 vault over trUSD (UUPS proxy), with rewards vesting, a withdrawal cooldown and a daily cap on reported losses. |
 | TrUsdSilo | `contracts/core/TrUsdSilo.sol` | Holds trUSD during the strUSD cooldown. |
 | StakingRewardsDistributor | `contracts/core/StakingRewardsDistributor.sol` | Moves rewards into the strUSD vault. |
-| PendleYTLock | `contracts/core/PendleYTLock.sol` | Holds Pendle YT positions and distributes their yield (UUPS proxy). |
+| PendleYTLock | `contracts/core/PendleYTLock.sol` | Holds Pendle YT positions and distributes their yield (UUPS proxy). Version 4.0.0, which can also be set up with yield off. |
 | ToriTimelock | `contracts/governance/ToriTimelock.sol` | The timelock that governs privileged changes. |
 | StakedTrUSDL2 | `contracts/omnichain/StakedTrUSDL2.sol` | strUSD on other chains: a Chainlink CCIP burn/mint token with a blacklist. |
 | CurveRateOracle | `contracts/integrations/CurveRateOracle.sol` | 18-decimal wrapper of RedStone's strUSD rate feed, used by Curve pools on Monad. |
@@ -48,6 +48,8 @@ ever differ, the docs are the reference.
 |---|---|
 | StakedTrUSDL2 (strUSD) | [`0x683fb58ee77172626D5B49087DdAc71eF7825d20`](https://monadvision.com/address/0x683fb58ee77172626D5B49087DdAc71eF7825d20) |
 | CurveRateOracle | [`0x33D3ad3a9f0eC36EfbE76425C0f33207dD5a8A98`](https://monadvision.com/address/0x33D3ad3a9f0eC36EfbE76425C0f33207dD5a8A98) |
+| ToriTimelock | [`0xe1e826bd1433a78cfb262dd670e793bfe2f865ae`](https://monadvision.com/address/0xe1e826bd1433a78cfb262dd670e793bfe2f865ae) |
+| PendleYTLock, strUSD (proxy) | [`0x3EB66F4195761bB299427511d5f4D0a254B8AE4A`](https://monadvision.com/address/0x3EB66F4195761bB299427511d5f4D0a254B8AE4A) (implementation [`0xd12E8d8cF1675fB1E472890A6a14D58dD982eAE6`](https://monadvision.com/address/0xd12E8d8cF1675fB1E472890A6a14D58dD982eAE6)) |
 
 ### Pharos
 
@@ -63,8 +65,9 @@ ever differ, the docs are the reference.
 
 trUSD on Monad, Pharos and Arbitrum is Chainlink's standard CCIP burn/mint token, so its source is not here.
 
-**Note on the trUSD PendleYTLock:** its implementation is an earlier version of `PendleYTLock`
-than the one in this repository. The strUSD lock runs the version here.
+**Note on the Ethereum PendleYTLocks:** they run earlier versions of `PendleYTLock` than the 4.0.0
+in this repository: the strUSD lock 3.0.0 and the trUSD lock 2.0.0. The Monad strUSD lock runs the
+version here.
 
 ## Building
 
@@ -74,8 +77,10 @@ forge build
 ```
 
 Solidity 0.8.28, optimizer 200 runs, EVM `cancun`, no IR (`foundry.toml`, default profile). This
-build reproduces the deployed runtime code of every contract above except the trUSD PendleYTLock.
-StakedTrUSD, StakedTrUSDL2 and CurveRateOracle match byte for byte. The contracts deployed at
+build reproduces the deployed runtime code of every contract above except the two Ethereum
+PendleYTLocks (see the note above). StakedTrUSD, StakedTrUSDL2, CurveRateOracle and the Monad
+ToriTimelock match byte for byte; the Monad PendleYTLock implementation matches apart from the
+immutable that holds its own address. The contracts deployed at
 launch were compiled with an IPFS metadata hash, so their last 41 bytes differ; the code itself
 is identical.
 
