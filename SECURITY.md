@@ -9,7 +9,7 @@ privately to **security@tori.finance**. Do not open a public GitHub issue.
 
 | Stage                | Target                 |
 |----------------------|------------------------|
-| Acknowledgment       | Within 3 business days |
+| Acknowledgment       | Within 24 hours        |
 | Initial assessment   | Within 10 business days |
 | Public disclosure    | After the fix is live  |
 
