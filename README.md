@@ -39,8 +39,11 @@ ever differ, the docs are the reference.
 | TrUsdSilo | [`0xF7c0d8853E69DCD37ee7599c6280d2632F3360B4`](https://etherscan.io/address/0xF7c0d8853E69DCD37ee7599c6280d2632F3360B4) |
 | StakingRewardsDistributor | [`0xa0C49fFa4B7941830235cde974d9B2a8420CD375`](https://etherscan.io/address/0xa0C49fFa4B7941830235cde974d9B2a8420CD375) |
 | ToriTimelock | [`0xA952453E39F77108Ee37C1b92de593F1C59A6ef4`](https://etherscan.io/address/0xA952453E39F77108Ee37C1b92de593F1C59A6ef4) (replaced `0x7af35ab3…` on 15 Sep 2026; same source) |
-| PendleYTLock, strUSD (proxy) | [`0x6569C554cBf71Dfcc32aEc48B0eDd2582f5C4a96`](https://etherscan.io/address/0x6569C554cBf71Dfcc32aEc48B0eDd2582f5C4a96) |
-| PendleYTLock, trUSD (proxy) | [`0x10b2487173d9F7087c8bdce9E70fd135212A8d7d`](https://etherscan.io/address/0x10b2487173d9F7087c8bdce9E70fd135212A8d7d) (see the note below) |
+| PendleYTLock, strUSD, 26 Nov 2026 (proxy) | [`0x6569C554cBf71Dfcc32aEc48B0eDd2582f5C4a96`](https://etherscan.io/address/0x6569C554cBf71Dfcc32aEc48B0eDd2582f5C4a96) (see the note below) |
+| PendleYTLock, trUSD, 26 Nov 2026 (proxy) | [`0x10b2487173d9F7087c8bdce9E70fd135212A8d7d`](https://etherscan.io/address/0x10b2487173d9F7087c8bdce9E70fd135212A8d7d) (see the note below) |
+| PendleYTLock, strUSD, 25 Feb 2027 (proxy, lYT-strUSD-25FEB2027) | [`0xEc5D99A53E6Ef41bbe4C8630D847BF23dc067401`](https://etherscan.io/address/0xEc5D99A53E6Ef41bbe4C8630D847BF23dc067401) |
+| PendleYTLock, trUSD, 25 Feb 2027 (proxy, lYT-trUSD-25FEB2027, yield off) | [`0x8925CebAF59691A5a5705ea4c9101f358B4f6bF9`](https://etherscan.io/address/0x8925CebAF59691A5a5705ea4c9101f358B4f6bF9) |
+| PendleYTLock 4.0.0 (implementation of the two 25 Feb 2027 locks) | [`0xd12E8d8cF1675fB1E472890A6a14D58dD982eAE6`](https://etherscan.io/address/0xd12E8d8cF1675fB1E472890A6a14D58dD982eAE6) |
 
 ### Monad
 
@@ -65,9 +68,10 @@ ever differ, the docs are the reference.
 
 trUSD on Monad, Pharos and Arbitrum is Chainlink's standard CCIP burn/mint token, so its source is not here.
 
-**Note on the Ethereum PendleYTLocks:** they run earlier versions of `PendleYTLock` than the 4.0.0
-in this repository: the strUSD lock 3.0.0 and the trUSD lock 2.0.0. The Monad strUSD lock runs the
-version here.
+**Note on the Ethereum PendleYTLocks:** the two 26 Nov 2026 locks run earlier versions of
+`PendleYTLock` than the 4.0.0 in this repository: the strUSD lock 3.0.0 and the trUSD lock 2.0.0.
+The two 25 Feb 2027 locks and the Monad strUSD lock run the version here, behind the same
+implementation address on both chains. The 25 Feb 2027 trUSD lock is set up with yield off.
 
 ## Building
 
@@ -77,10 +81,10 @@ forge build
 ```
 
 Solidity 0.8.28, optimizer 200 runs, EVM `cancun`, no IR (`foundry.toml`, default profile). This
-build reproduces the deployed runtime code of every contract above except the two Ethereum
-PendleYTLocks (see the note above). StakedTrUSD, StakedTrUSDL2, CurveRateOracle and the Monad
-ToriTimelock match byte for byte; the Monad PendleYTLock implementation matches apart from the
-immutable that holds its own address. The contracts deployed at
+build reproduces the deployed runtime code of every contract above except the two 26 Nov 2026
+Ethereum PendleYTLocks (see the note above). StakedTrUSD, StakedTrUSDL2, CurveRateOracle and the
+Monad ToriTimelock match byte for byte; the PendleYTLock 4.0.0 implementation, whose code is the
+same on Ethereum and Monad, matches apart from the immutable that holds its own address. The contracts deployed at
 launch were compiled with an IPFS metadata hash, so their last 41 bytes differ; the code itself
 is identical.
 
