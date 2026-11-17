@@ -1,7 +1,8 @@
 # Tori Protocol contracts
 
 The Solidity source of the Tori Protocol contracts that are deployed on mainnet, at the versions
-that are live. Nothing else is in this repository: no tests, deployment scripts or mocks.
+that are live, and the formal verification suite that runs against them (`test/`). There are no
+deployment scripts, and the only mocks are the ones that suite needs.
 
 Tori is a stablecoin protocol. trUSD is minted and redeemed against collateral through signed
 orders, and strUSD is an ERC-4626 vault over trUSD that earns the protocol's yield.
@@ -87,6 +88,24 @@ Monad ToriTimelock match byte for byte; the PendleYTLock 4.0.0 implementation, w
 same on Ethereum and Monad, matches apart from the immutable that holds its own address. The contracts deployed at
 launch were compiled with an IPFS metadata hash, so their last 41 bytes differ; the code itself
 is identical.
+
+## Formal verification
+
+`test/halmos/` holds 87 properties that are proven by [halmos](https://github.com/a16z/halmos)
+symbolic execution, not sampled by fuzzing: access control, supply and custody rules, the strUSD
+cooldown, blacklist and loss cap, order signing and nonces in ToriMinting, the timelock's delay and
+roles, and PendleYTLock's principal backing. CI runs them on every pull request and push to main
+(`.github/workflows/formal-verification.yml`); a counterexample, a solver timeout or an unexplored
+path fails the build.
+
+```bash
+npm install
+python -m pip install halmos==0.3.3
+forge clean && halmos
+```
+
+[test/halmos/README.md](test/halmos/README.md) lists every property, what it proves, its bounds, what
+is not covered and the findings.
 
 ## Audits
 
