@@ -1,0 +1,18 @@
+# halmos symbolic-execution settings for the properties under test/halmos.
+# CI (.github/workflows/formal-verification.yml) runs one contract group per matrix job with these
+# settings; per-property bounds are set with `/// @custom:halmos` annotations next to the property.
+# See test/halmos/README.md for every property, what it proves and its bounds.
+
+[global]
+# Only the formal properties: functions named `check_*` in contracts whose name ends in `Halmos`.
+function = "check_"
+match-contract = "Halmos$"
+
+# Loop unrolling bound. halmos counts every revisit of a symbolic branch as a loop iteration and
+# silently drops the paths that exceed the bound (it only warns), so CI fails on that warning. 3 covers
+# the batch functions under symbolic calldata, whose arrays have length 0, 1 or 2.
+loop = 3
+
+# Generous per-query budget so a slower CI runner does not turn a proof into a TIMEOUT. A TIMEOUT
+# fails the job, exactly like a counterexample.
+solver-timeout-assertion = "300s"
