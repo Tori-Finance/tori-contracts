@@ -550,6 +550,11 @@ contract ToriMintingHalmos is HalmosBase {
 
     /// @notice A caller with no role cannot change any role, cap, whitelist entry, custodian or pause
     ///         state, by any call.
+    /// @dev halmos gives each branch-feasibility query 1 ms by default and, when one runs out, follows
+    ///      both sides. On a slow CI runner that multiplied the paths here (151 locally, up to 1703 on a
+    ///      hosted runner) until an assertion query hit its own timeout. A longer branching budget keeps
+    ///      the path count the same on every machine.
+    /// @custom:halmos --solver-timeout-branching 100ms
     function check_privilegedState_onlyRoleHolders(address caller, address who) public {
         vm.assume(
             caller != admin && caller != timelock && caller != gatekeeper && caller != whitelister
