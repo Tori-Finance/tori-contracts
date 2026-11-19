@@ -38,7 +38,7 @@ ever differ, the docs are the reference.
 | ToriMinting | [`0xe16b821B9F6B0a6f06a2C4a61D5d1f71cFa53F1E`](https://etherscan.io/address/0xe16b821B9F6B0a6f06a2C4a61D5d1f71cFa53F1E) |
 | TrUsdSilo | [`0xF7c0d8853E69DCD37ee7599c6280d2632F3360B4`](https://etherscan.io/address/0xF7c0d8853E69DCD37ee7599c6280d2632F3360B4) |
 | StakingRewardsDistributor | [`0xa0C49fFa4B7941830235cde974d9B2a8420CD375`](https://etherscan.io/address/0xa0C49fFa4B7941830235cde974d9B2a8420CD375) |
-| ToriTimelock | [`0xA952453E39F77108Ee37C1b92de593F1C59A6ef4`](https://etherscan.io/address/0xA952453E39F77108Ee37C1b92de593F1C59A6ef4) (replaced `0x7af35ab3…` on 15 Sep 2026; same source) |
+| ToriTimelock | [`0xcd3c66e73abF927EAAF1238aEB5F251b4f2f667b`](https://etherscan.io/address/0xcd3c66e73abF927EAAF1238aEB5F251b4f2f667b) (replaced `0xA952453E…` on 19 Nov 2026; the earlier version did not refuse `renounceRole`) |
 | PendleYTLock, strUSD, 26 Nov 2026 (proxy) | [`0x6569C554cBf71Dfcc32aEc48B0eDd2582f5C4a96`](https://etherscan.io/address/0x6569C554cBf71Dfcc32aEc48B0eDd2582f5C4a96) (see the note below) |
 | PendleYTLock, trUSD, 26 Nov 2026 (proxy) | [`0x10b2487173d9F7087c8bdce9E70fd135212A8d7d`](https://etherscan.io/address/0x10b2487173d9F7087c8bdce9E70fd135212A8d7d) (see the note below) |
 | PendleYTLock, strUSD, 25 Feb 2027 (proxy, lYT-strUSD-25FEB2027) | [`0xEc5D99A53E6Ef41bbe4C8630D847BF23dc067401`](https://etherscan.io/address/0xEc5D99A53E6Ef41bbe4C8630D847BF23dc067401) |
@@ -51,7 +51,7 @@ ever differ, the docs are the reference.
 |---|---|
 | StakedTrUSDL2 (strUSD) | [`0x683fb58ee77172626D5B49087DdAc71eF7825d20`](https://monadvision.com/address/0x683fb58ee77172626D5B49087DdAc71eF7825d20) |
 | CurveRateOracle | [`0x33D3ad3a9f0eC36EfbE76425C0f33207dD5a8A98`](https://monadvision.com/address/0x33D3ad3a9f0eC36EfbE76425C0f33207dD5a8A98) |
-| ToriTimelock | [`0xe1e826bd1433a78cfb262dd670e793bfe2f865ae`](https://monadvision.com/address/0xe1e826bd1433a78cfb262dd670e793bfe2f865ae) |
+| ToriTimelock | [`0xcd3c66e73abF927EAAF1238aEB5F251b4f2f667b`](https://monadvision.com/address/0xcd3c66e73abF927EAAF1238aEB5F251b4f2f667b) (same address as on Ethereum; replaced `0xe1e826bd…` on 19 Nov 2026) |
 | PendleYTLock, strUSD (proxy) | [`0x3EB66F4195761bB299427511d5f4D0a254B8AE4A`](https://monadvision.com/address/0x3EB66F4195761bB299427511d5f4D0a254B8AE4A) (implementation [`0xd12E8d8cF1675fB1E472890A6a14D58dD982eAE6`](https://monadvision.com/address/0xd12E8d8cF1675fB1E472890A6a14D58dD982eAE6)) |
 
 ### Pharos
@@ -82,8 +82,8 @@ forge build
 
 Solidity 0.8.28, optimizer 200 runs, EVM `cancun`, no IR (`foundry.toml`, default profile). This
 build reproduces the deployed runtime code of every contract above except the two 26 Nov 2026
-Ethereum PendleYTLocks (see the note above). StakedTrUSD, StakedTrUSDL2, CurveRateOracle and the
-Monad ToriTimelock match byte for byte; the PendleYTLock 4.0.0 implementation, whose code is the
+Ethereum PendleYTLocks (see the note above). StakedTrUSD, StakedTrUSDL2, CurveRateOracle and
+ToriTimelock (Ethereum and Monad) match byte for byte; the PendleYTLock 4.0.0 implementation, whose code is the
 same on Ethereum and Monad, matches apart from the immutable that holds its own address. The contracts deployed at
 launch were compiled with an IPFS metadata hash, so their last 41 bytes differ; the code itself
 is identical.

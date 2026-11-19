@@ -7,12 +7,19 @@ contract ToriTimelock is TimelockController {
     uint256 public constant MIN_DELAY = 1 days;
     uint256 public constant MAX_DELAY = 30 days;
 
+    error CantRenounceRole();
+
     /// @param minDelay       Seconds between scheduling and execution.
     /// @param timelockAdmin  Keeps PROPOSER_ROLE.
     /// @param canceller      Sole holder of CANCELLER_ROLE.
     /// @param executor       Sole holder of EXECUTOR_ROLE. Pass `timelockAdmin`
     ///                       to keep proposing and executing on one address.
-    constructor(uint256 minDelay, address timelockAdmin, address canceller, address executor)
+    constructor(
+        uint256 minDelay,
+        address timelockAdmin,
+        address canceller,
+        address executor
+    )
         TimelockController(minDelay, _toArray(timelockAdmin), _toArray(timelockAdmin), address(this))
     {
         require(minDelay >= MIN_DELAY, "Delay too short");
@@ -30,6 +37,13 @@ contract ToriTimelock is TimelockController {
         }
 
         _revokeRole(DEFAULT_ADMIN_ROLE, address(this)); // renounce temp admin
+    }
+
+    /// @notice Roles are final. Nothing holds DEFAULT_ADMIN_ROLE after the constructor, so a
+    ///         renounced role could never be granted again: the sole proposer or executor
+    ///         giving its role up would stop every operation behind the timelock for good.
+    function renounceRole(bytes32, address) public virtual override {
+        revert CantRenounceRole();
     }
 
     function _toArray(address addr) private pure returns (address[] memory) {
